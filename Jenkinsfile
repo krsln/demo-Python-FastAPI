@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    //agent any
+    agent {
+        docker {
+            image 'python:3.13' // Updated to Python 3.13
+            args '-v /var/run/docker.sock:/var/run/docker.sock --user root'
+        }
+    }
 
     environment {
         IMAGE_NAME = 'python-fastapi'
@@ -25,6 +31,7 @@ pipeline {
                             try {
                                 sh '''
                                     pip install --user uv
+                                    apt-get update && apt-get install -y docker.io
                                     uv sync --frozen
                                 '''
                             } catch (Exception e) {
@@ -109,11 +116,9 @@ pipeline {
             cleanWs()
             sh 'docker logout || true'
         }
-
         success {
             echo "Build and deployment of ${DOCKER_IMAGE}:${IMAGE_TAG} and ${DOCKER_IMAGE}:latest completed successfully!"
         }
-
         failure {
             echo "Pipeline failed! Please check the logs for details."
         }
