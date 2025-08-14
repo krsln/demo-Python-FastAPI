@@ -47,5 +47,6 @@ docker run -d --name demo-python-api -p 8000:8000 demo-python-fastapi
 ## Jenkins file
 
 ````shell
-
+TODO: make it work!!
+tested on jenkins on docker.. failed
 ````
