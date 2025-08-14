@@ -1,20 +1,22 @@
-FROM python:3.12-slim
+# Use slim python image
+FROM python:3.12-slim AS base
+
+# Install uv
+RUN pip install --no-cache-dir uv
 
 WORKDIR /app
 
-# Install uv
-RUN pip install uv
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
 
-# Copy project files
-COPY pyproject.toml .
-COPY main.py .
-COPY .env .
+# Install deps exactly as in uv.lock
+RUN uv sync --frozen --no-dev
 
-# Install dependencies using uv
-RUN uv pip install --system -r pyproject.toml
+# Copy app code
+COPY app ./app
 
 # Expose port
 EXPOSE 8000
 
-# Run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run app
+CMD [".venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
